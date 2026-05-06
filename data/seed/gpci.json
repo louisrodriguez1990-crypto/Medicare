@@ -1,0 +1,42 @@
+[
+  {
+    "localityCode": "0001100",
+    "localityName": "Texas (Statewide Rest)",
+    "state": "TX",
+    "workGpci": 1.000,
+    "peGpci": 0.951,
+    "mpGpci": 0.910
+  },
+  {
+    "localityCode": "0511101",
+    "localityName": "Manhattan, NY",
+    "state": "NY",
+    "workGpci": 1.066,
+    "peGpci": 1.226,
+    "mpGpci": 1.561
+  },
+  {
+    "localityCode": "0500000",
+    "localityName": "California (Rest of State)",
+    "state": "CA",
+    "workGpci": 1.040,
+    "peGpci": 1.142,
+    "mpGpci": 0.661
+  },
+  {
+    "localityCode": "0900000",
+    "localityName": "Florida (Statewide)",
+    "state": "FL",
+    "workGpci": 1.000,
+    "peGpci": 0.971,
+    "mpGpci": 1.689
+  },
+  {
+    "localityCode": "1200000",
+    "localityName": "Pennsylvania (Rest of State)",
+    "state": "PA",
+    "workGpci": 1.000,
+    "peGpci": 0.954,
+    "mpGpci": 0.804
+  }
+]

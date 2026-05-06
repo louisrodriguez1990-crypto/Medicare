@@ -1,0 +1,9 @@
+{
+  "year": 2026,
+  "files": [
+    { "name": "PPRRVU2026.csv", "url": "https://www.cms.gov/files/zip/rvu26a.zip!PPRRVU2026.csv" },
+    { "name": "GPCI2026.csv", "url": "https://www.cms.gov/files/zip/rvu26a.zip!GPCI2026.csv" },
+    { "name": "LOCCO2026.csv", "url": "https://www.cms.gov/files/zip/rvu26a.zip!LOCCO2026.csv" },
+    { "name": "HCPC2026.csv", "url": "https://www.cms.gov/files/zip/hcpc2026.zip!HCPC2026.csv" }
+  ]
+}
