@@ -7,7 +7,7 @@
  */
 import { readFile, writeFile, readdir, mkdir } from "node:fs/promises";
 import path from "node:path";
-import { CptCodeSchema, GpciSchema } from "../lib/cms/schema";
+import { CptCodeSchema, GpciSchema, HCPCS_LEVEL_II_REGEX } from "../lib/cms/schema";
 
 interface NormalizeOptions {
   year: number;
@@ -44,7 +44,8 @@ async function normalizePprrvu(raw: string, year: number, sourceFile: string) {
     // PPRRVU columns we depend on (positions match the 2024+ layout; verify against CMS layout PDF):
     //  0 HCPCS, 1 MOD, 2 DESCRIPTION (short), 3 STATUS, ...
     //  ~Work RVU, ~Non-Fac PE RVU, ~Fac PE RVU, ~MP RVU, ~Global Days
-    if (!/^[0-9A-Z]{5}$/.test(cols[0] ?? "")) continue;
+    // HCPCS Level II only — drop AMA-copyrighted CPT codes from the matrix.
+    if (!HCPCS_LEVEL_II_REGEX.test(cols[0] ?? "")) continue;
     const candidate = {
       code: cols[0],
       shortDescription: (cols[2] ?? "").slice(0, 28),

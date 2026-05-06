@@ -2,13 +2,17 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ReimbursementCard } from "@/components/ReimbursementCard";
 import { RvuTable } from "@/components/RvuTable";
-import { DualFunnelCTA } from "@/components/DualFunnelCTA";
+import { B2BCallout } from "@/components/B2BCallout";
+import { ContentSections } from "@/components/ContentSections";
+import { AdSlot } from "@/components/ads/AdSlot";
 import { JsonLd } from "@/components/JsonLd";
 import { listTopCpts, getRatesForCptStateCached } from "@/lib/db/queries";
-import { findSeedGpci } from "@/lib/db/seed";
+import { findSeedGpci, getSeedCpts } from "@/lib/db/seed";
 import { resolveSpecialty, SPECIALTIES } from "@/lib/content/specialties";
+import { CONVERSION_FACTOR_2026 } from "@/lib/cms/schema";
 import { buildPageJsonLd } from "@/lib/seo/jsonld";
-import { getSiteUrl } from "@/lib/seo/agent";
+import { buildSections, nationalRatesFor } from "@/lib/content/sections";
+import { getSiteConfig } from "@/lib/site/config";
 
 export const dynamic = "force-static";
 export const dynamicParams = true;
@@ -19,9 +23,6 @@ interface RouteParams {
   code: string;
 }
 
-// B2B-leaning pivot: anchored on a specialty taxonomy node. Canonical points to the
-// /reimbursement/[code]/[state] form (with the licensed agent's home state) to consolidate
-// link equity rather than splitting it between two URL templates for the same code.
 const CANONICAL_STATE_SLUG = "texas";
 
 export async function generateStaticParams() {
@@ -45,13 +46,13 @@ export async function generateMetadata({
   const sp = resolveSpecialty(specialty);
   if (!sp) return { title: "Specialty not found" };
   const result = await getRatesForCptStateCached(code, CANONICAL_STATE_SLUG);
-  if (!result) return { title: "CPT code not found" };
-  const siteUrl = getSiteUrl();
+  if (!result) return { title: "HCPCS code not found" };
+  const { url } = getSiteConfig();
   return {
-    title: `CPT ${result.cpt.code} for ${sp.name} — Medicare Reimbursement (${result.cpt.sourceYear})`,
-    description: `${sp.name}-relevant CPT ${result.cpt.code} (${result.cpt.shortDescription}) — Medicare Physician Fee Schedule allowed amount, RVU breakdown, and global period.`,
+    title: `HCPCS ${result.cpt.code} for ${sp.name} — Medicare Reimbursement (${result.cpt.sourceYear})`,
+    description: `${sp.name}-relevant HCPCS ${result.cpt.code} (${result.cpt.shortDescription}) — Medicare Physician Fee Schedule allowed amount, RVU breakdown, and global period.`,
     alternates: {
-      canonical: `${siteUrl}/reimbursement/${result.cpt.code}/${CANONICAL_STATE_SLUG}`,
+      canonical: `${url}/reimbursement/${result.cpt.code}/${CANONICAL_STATE_SLUG}`,
     },
   };
 }
@@ -77,6 +78,21 @@ export default async function SpecialtyCodePage({
     mpGpci: 1,
   };
 
+  const nationalRates = nationalRatesFor(cpt, CONVERSION_FACTOR_2026, rates.computedAt);
+  const siblingCodes = getSeedCpts()
+    .filter((c) => c.code !== cpt.code && c.code[0] === cpt.code[0])
+    .slice(0, 6)
+    .map((c) => ({ code: c.code, shortDescription: c.shortDescription }));
+
+  const sections = buildSections({
+    cpt,
+    rates,
+    state,
+    gpci,
+    nationalRates,
+    siblingCodes,
+  });
+
   const pagePath = `/medical-billing-codes/${sp.slug}/${cpt.code}`;
   const jsonLd = buildPageJsonLd({ cpt, rates, state, specialty: sp, pagePath });
 
@@ -93,8 +109,24 @@ export default async function SpecialtyCodePage({
       </nav>
 
       <ReimbursementCard cpt={cpt} rates={rates} state={state} />
+
+      <AdSlot
+        slotId={process.env.NEXT_PUBLIC_ADSENSE_SLOT_TOP ?? "1111111111"}
+        format="auto"
+        reservedHeight={250}
+      />
+
       <RvuTable cpt={cpt} gpci={gpci} />
-      <DualFunnelCTA cpt={cpt} state={state} audience="b2b" />
+      <ContentSections sections={sections} state={state} />
+
+      <AdSlot
+        slotId={process.env.NEXT_PUBLIC_ADSENSE_SLOT_MID ?? "2222222222"}
+        format="fluid"
+        layout="in-article"
+        reservedHeight={300}
+      />
+
+      <B2BCallout cpt={cpt} state={state} />
     </>
   );
 }

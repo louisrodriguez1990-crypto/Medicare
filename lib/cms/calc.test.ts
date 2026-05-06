@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { calculateReimbursement, roundHalfEven } from "./calc";
 import { CONVERSION_FACTOR_2026 } from "./schema";
-import { findSeedCpt, findSeedGpci } from "@/lib/db/seed";
+import { findSeedCpt, findSeedGpci, getSeedCpts } from "@/lib/db/seed";
 
 describe("roundHalfEven", () => {
   it("rounds half values to even", () => {
@@ -16,8 +16,8 @@ describe("roundHalfEven", () => {
 });
 
 describe("calculateReimbursement", () => {
-  it("matches the CMS allowed-amount formula for 99214 in TX", () => {
-    const cpt = findSeedCpt("99214")!;
+  it("matches the CMS allowed-amount formula for G0438 in TX", () => {
+    const cpt = findSeedCpt("G0438")!;
     const gpci = findSeedGpci("TX")!;
     const r = calculateReimbursement({ cpt, gpci });
 
@@ -40,8 +40,8 @@ describe("calculateReimbursement", () => {
     expect(r.localityCode).toBe(gpci.localityCode);
   });
 
-  it("non-facility >= facility for E&M codes (PE differs)", () => {
-    for (const code of ["99213", "99214", "99215"]) {
+  it("non-facility >= facility for G-code wellness visits", () => {
+    for (const code of ["G0438", "G0439"]) {
       const cpt = findSeedCpt(code)!;
       const gpci = findSeedGpci("TX")!;
       const r = calculateReimbursement({ cpt, gpci });
@@ -50,7 +50,7 @@ describe("calculateReimbursement", () => {
   });
 
   it("is deterministic across repeated calls", () => {
-    const cpt = findSeedCpt("93306")!;
+    const cpt = findSeedCpt("G0438")!;
     const gpci = findSeedGpci("NY")!;
     const a = calculateReimbursement({ cpt, gpci });
     const b = calculateReimbursement({ cpt, gpci });
@@ -58,9 +58,15 @@ describe("calculateReimbursement", () => {
   });
 
   it("differs between states (GPCI variation)", () => {
-    const cpt = findSeedCpt("70553")!;
+    const cpt = findSeedCpt("G0438")!;
     const tx = calculateReimbursement({ cpt, gpci: findSeedGpci("TX")! });
     const ny = calculateReimbursement({ cpt, gpci: findSeedGpci("NY")! });
     expect(tx.nonFacilityPrice).not.toBe(ny.nonFacilityPrice);
+  });
+
+  it("seed contains only HCPCS Level II codes (no AMA-copyrighted CPT)", () => {
+    for (const row of getSeedCpts()) {
+      expect(row.code).toMatch(/^[A-Z][0-9]{4}$/);
+    }
   });
 });

@@ -20,7 +20,7 @@ export default function SpecialtyIndex() {
         {SPECIALTIES.map((s) => (
           <li key={s.slug}>
             <Link
-              href={`/medical-billing-codes/${s.slug}/99214`}
+              href={`/medical-billing-codes/${s.slug}/G0438`}
               className="block rounded border border-slate-200 px-3 py-2 hover:border-accent"
             >
               {s.name}

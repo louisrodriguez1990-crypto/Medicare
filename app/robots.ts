@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
-import { getSiteUrl } from "@/lib/seo/agent";
+import { getSiteConfig } from "@/lib/site/config";
 
 export default function robots(): MetadataRoute.Robots {
-  const siteUrl = getSiteUrl();
+  const { url: siteUrl } = getSiteConfig();
   return {
     rules: [
       {

@@ -21,9 +21,13 @@ export const GpciSchema = z.object({
 });
 export type Gpci = z.infer<typeof GpciSchema>;
 
+// HCPCS Level II only: a single capital letter followed by 4 digits (G0008, J3490, A4253...).
+// CPT codes (5 numeric digits) are AMA copyright and intentionally excluded from this matrix.
+export const HCPCS_LEVEL_II_REGEX = /^[A-Z][0-9]{4}$/;
+
 export const CptCodeSchema = z.object({
-  code: z.string().regex(/^[0-9A-Z]{5}$/),
-  shortDescription: z.string().max(28),
+  code: z.string().regex(HCPCS_LEVEL_II_REGEX),
+  shortDescription: z.string().max(80),
   longDescription: z.string(),
   status: z.enum(["A", "R", "T", "N", "I", "C"]),
   globalDays: GlobalDays,

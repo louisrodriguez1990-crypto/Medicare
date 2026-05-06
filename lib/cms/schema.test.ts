@@ -1,24 +1,38 @@
 import { describe, expect, it } from "vitest";
 import { CptCodeSchema, GpciSchema, ReimbursementSchema } from "./schema";
 
-describe("CptCodeSchema", () => {
-  it("accepts a well-formed row", () => {
+describe("CptCodeSchema (HCPCS Level II only)", () => {
+  it("accepts a well-formed HCPCS row", () => {
     const ok = CptCodeSchema.safeParse({
-      code: "99214",
-      shortDescription: "Office o/p est",
-      longDescription: "Office or other outpatient visit ...",
+      code: "G0438",
+      shortDescription: "Annual wellness visit, initial",
+      longDescription: "Annual wellness visit; includes a personalized prevention plan of service.",
       status: "A",
       globalDays: "XXX",
-      rvu: { workRvu: 1.92, peRvuNonFacility: 1.66, peRvuFacility: 0.66, mpRvu: 0.15 },
+      rvu: { workRvu: 2.43, peRvuNonFacility: 1.92, peRvuFacility: 0.83, mpRvu: 0.18 },
       sourceYear: 2026,
-      sourceFile: "PPRRVU2026.csv",
+      sourceFile: "HCPCS2026.csv",
     });
     expect(ok.success).toBe(true);
   });
 
-  it("rejects an invalid CPT code shape", () => {
+  it("rejects a 5-digit numeric CPT code", () => {
     const bad = CptCodeSchema.safeParse({
-      code: "999",
+      code: "99214",
+      shortDescription: "x",
+      longDescription: "x",
+      status: "A",
+      globalDays: "XXX",
+      rvu: { workRvu: 1, peRvuNonFacility: 1, peRvuFacility: 1, mpRvu: 1 },
+      sourceYear: 2026,
+      sourceFile: "x",
+    });
+    expect(bad.success).toBe(false);
+  });
+
+  it("rejects malformed HCPCS shape (lowercase letter)", () => {
+    const bad = CptCodeSchema.safeParse({
+      code: "g0438",
       shortDescription: "x",
       longDescription: "x",
       status: "A",
@@ -32,7 +46,7 @@ describe("CptCodeSchema", () => {
 
   it("rejects negative RVUs", () => {
     const bad = CptCodeSchema.safeParse({
-      code: "99214",
+      code: "G0438",
       shortDescription: "x",
       longDescription: "x",
       status: "A",
@@ -62,7 +76,7 @@ describe("GpciSchema", () => {
 describe("ReimbursementSchema", () => {
   it("locks formulaVersion to 2026.1", () => {
     const bad = ReimbursementSchema.safeParse({
-      code: "99214",
+      code: "G0438",
       state: "TX",
       localityCode: "0001100",
       conversionFactor: 32.3465,

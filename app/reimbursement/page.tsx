@@ -4,9 +4,9 @@ import { listTopCpts } from "@/lib/db/queries";
 export const revalidate = 86400;
 
 export const metadata = {
-  title: "Browse Medicare Reimbursement by CPT Code",
+  title: "Browse Medicare Reimbursement by HCPCS Code",
   description:
-    "Directory of Medicare reimbursement rates for every CPT and HCPCS procedure code, by state.",
+    "Directory of Medicare reimbursement rates for HCPCS Level II procedure, drug, DME, and supply codes, by state.",
   alternates: { canonical: "/reimbursement" },
 };
 
@@ -15,7 +15,7 @@ export default async function ReimbursementIndex() {
   return (
     <div>
       <h1 className="text-3xl font-bold tracking-tight">
-        Medicare Reimbursement by CPT Code
+        Medicare Reimbursement by HCPCS Code
       </h1>
       <p className="mt-3 text-slate-700">
         Pick a code to see the 2026 Medicare allowed amount in every state.

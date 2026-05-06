@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { listTopCpts } from "@/lib/db/queries";
 import { STATES } from "@/lib/cms/locality";
 import { SPECIALTIES } from "@/lib/content/specialties";
-import { getSiteUrl } from "@/lib/seo/agent";
+import { getSiteConfig } from "@/lib/site/config";
 
 // Next 15 supports a sitemap *index* via generateSitemaps; this file emits a single sitemap
 // limited to the top-N CPTs to stay under the 50K-URL / 50 MB sitemap caps.
@@ -11,7 +11,7 @@ import { getSiteUrl } from "@/lib/seo/agent";
 const SITEMAP_TOP_N = parseInt(process.env.SITEMAP_TOP_N ?? "200", 10);
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = getSiteUrl();
+  const { url: siteUrl } = getSiteConfig();
   const cpts = await listTopCpts(SITEMAP_TOP_N);
   const lastModified = new Date();
 

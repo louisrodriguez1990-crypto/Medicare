@@ -1,19 +1,24 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { TpmoFooter } from "@/components/TpmoFooter";
-import { getSiteUrl } from "@/lib/seo/agent";
+import { SiteFooter } from "@/components/SiteFooter";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { AdSenseScript } from "@/components/ads/AdSenseScript";
+import { getSiteConfig } from "@/lib/site/config";
+
+const { url, name, tagline, searchConsoleVerificationToken } = getSiteConfig();
 
 export const metadata: Metadata = {
-  metadataBase: new URL(getSiteUrl()),
+  metadataBase: new URL(url),
   title: {
-    default: "Medicare CPT Reimbursement Rates by State (2026)",
-    template: "%s | Medicare CPT Reimbursement",
+    default: `${name} — Medicare HCPCS Reimbursement Rates by State (2026)`,
+    template: `%s | ${name}`,
   },
-  description:
-    "Look up 2026 Medicare reimbursement rates for any CPT or HCPCS code, adjusted for your state's GPCI. Sourced from the CMS Physician Fee Schedule.",
-  applicationName: "Medicare CPT Reimbursement",
-  authors: [{ name: "Licensed Medicare Agent" }],
+  description: tagline,
+  applicationName: name,
   robots: { index: true, follow: true },
+  ...(searchConsoleVerificationToken
+    ? { verification: { google: searchConsoleVerificationToken } }
+    : {}),
 };
 
 export default function RootLayout({
@@ -23,6 +28,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en-US">
+      <head>
+        <AdSenseScript />
+      </head>
       <body className="min-h-screen bg-white text-ink antialiased font-sans">
         <a
           href="#main"
@@ -33,7 +41,7 @@ export default function RootLayout({
         <header className="border-b border-slate-200">
           <div className="mx-auto max-w-5xl px-4 py-3 flex items-center justify-between">
             <a href="/" className="font-semibold tracking-tight">
-              Medicare CPT Reimbursement
+              {name}
             </a>
             <nav className="text-sm flex gap-4">
               <a href="/reimbursement" className="hover:underline">
@@ -42,8 +50,8 @@ export default function RootLayout({
               <a href="/medical-billing-codes" className="hover:underline">
                 By Specialty
               </a>
-              <a href="/disclosures" className="hover:underline">
-                Disclosures
+              <a href="/methodology" className="hover:underline">
+                Methodology
               </a>
             </nav>
           </div>
@@ -51,7 +59,8 @@ export default function RootLayout({
         <main id="main" className="mx-auto max-w-5xl px-4 py-8">
           {children}
         </main>
-        <TpmoFooter />
+        <SiteFooter />
+        <GoogleAnalytics />
       </body>
     </html>
   );
